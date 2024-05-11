@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Find Middle Point</title>
+</head>
+<body>
+    <h1>Find Middle Point</h1>
+    <div>
+        <label for="location1">Location 1:</label>
+        <input type="text" id="location1">
+    </div>
+    <div>
+        <label for="location2">Location 2:</label>
+        <input type="text" id="location2">
+    </div>
+    <button onclick="findMiddlePoint()">Find Middle Point</button>
+    <div id="map"></div>
+    <div id="midpointCoordinates"></div> 
+    <div id="accommodationsNearby"></div>
+
+    <!-- Include the Google Maps API script with the API key -->
+    <script src="apikey.js"></script>
+    <script>
+        const script = document.createElement('script');
+        script.src = "https://maps.googleapis.com/maps/api/js?key=" + apiKey + "&libraries=places";
+        document.body.appendChild(script);
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
