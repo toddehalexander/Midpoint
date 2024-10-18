@@ -1,0 +1,139 @@
+/* Main container style */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Form styles */
+form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Button styling */
+button {
+    background-color: #97c4b8;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #7eb1a2;
+}
+
+/* Map styles */
+#map {
+    height: 500px;
+    border: 2px solid #ddd;
+    margin-bottom: 20px;
+}
+
+/* Amenities list style */
+#amenities-list {
+    background-color: #f7f9fc;
+    padding: 20px;
+    border-radius: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#amenities-list h3 {
+    margin-top: 0;
+}
+
+.amenity-item {
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #e1eff4;
+    border-radius: 8px;
+}
+
+.amenity-item h4 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* Themes */
+body.pastel {
+    background-color: #e8f5e9;
+}
+
+body.dark {
+    background-color: #2e2e2e;
+    color: #f0f0f0;
+}
+
+body.light {
+    background-color: #fefefe;
+}
+
+body.blue {
+    background-color: #e3f2fd;
+}
+/* Main container style */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Autocomplete dropdown */
+.autocomplete-items {
+    position: relative;
+    border: 1px solid #ddd;
+    border-top: none;
+    z-index: 99;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+}
+
+.autocomplete-items div:hover {
+    background-color: #e9e9e9;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Radius value display */
+#radius-value {
+    font-weight: bold;
+}
+
+/* Amenities list style */
+#amenities-list {
+    padding: 20px;
+    background-color: #f7f9fc;
+    border-radius: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+}
