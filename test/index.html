@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JavaScript Unit, Performance, and Security Tests with Real API</title>
+    <style>
+        #test-results, #performance-results, #security-results {
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Tests with Real API</h1>
+
+    <h2>Unit Tests</h2>
+    <pre id="test-results"></pre>
+
+    <h2>Performance Tests</h2>
+    <pre id="performance-results"></pre>
+
+    <h2>Security Tests</h2>
+    <pre id="security-results"></pre>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script> <!-- Axios for API requests -->
+    <script src="../app.js"></script> <!-- Directly include your app.js file -->
+
+    <script>
+        // Utility function to assert and print results
+        function assertEqual(actual, expected, testName) {
+            if (actual === expected) {
+                console.log(`✅ ${testName}`);
+                document.getElementById('test-results').innerText += `✅ ${testName}\n`;
+            } else {
+                console.error(`❌ ${testName}: Expected ${expected}, but got ${actual}`);
+                document.getElementById('test-results').innerText += `❌ ${testName}: Expected ${expected}, but got ${actual}\n`;
+            }
+        }
+
+        // Unit test functions
+
+        // Test for getCoordinates using real API
+        async function testGetCoordinates() {
+            try {
+                const coordsLA = await getCoordinates("Los Angeles");
+                assertEqual(coordsLA[0].toFixed(4), "34.0522", "getCoordinates should return correct latitude for LA");
+                assertEqual(coordsLA[1].toFixed(4), "-118.2437", "getCoordinates should return correct longitude for LA");
+
+                const coordsNY = await getCoordinates("New York");
+                assertEqual(coordsNY[0].toFixed(4), "40.7128", "getCoordinates should return correct latitude for NY");
+                assertEqual(coordsNY[1].toFixed(4), "-74.0060", "getCoordinates should return correct longitude for NY");
+            } catch (error) {
+                console.error(`❌ testGetCoordinates failed: ${error.message}`);
+            }
+        }
+
+        // Test for getAmenities using real API
+        async function testGetAmenities() {
+            try {
+                const amenities = await getAmenities(34.0522, -118.2437, 1000);
+                assertEqual(amenities.length > 0, true, "getAmenities should return some amenities for LA coordinates");
+                assertEqual(amenities[0].tags.amenity !== undefined, true, "getAmenities should return amenities with valid tags");
+            } catch (error) {
+                console.error(`❌ testGetAmenities failed: ${error.message}`);
+            }
+        }
+
+        // Performance test functions
+
+        // Measure performance of getCoordinates with real API calls
+        async function performanceGetCoordinates() {
+            const start = performance.now();
+            for (let i = 0; i < 5; i++) { // Reduced to 5 calls to avoid overloading the API
+                await getCoordinates("Los Angeles");
+            }
+            const end = performance.now();
+            const duration = end - start;
+            document.getElementById('performance-results').innerText += `getCoordinates (5 real calls): ${duration.toFixed(2)} ms\n`;
+        }
+
+        // Measure performance of getAmenities with real API calls
+        async function performanceGetAmenities() {
+            const start = performance.now();
+            for (let i = 0; i < 5; i++) { // Reduced to 5 calls to avoid overloading the API
+                await getAmenities(34.0522, -118.2437, 1000);
+            }
+            const end = performance.now();
+            const duration = end - start;
+            document.getElementById('performance-results').innerText += `getAmenities (5 real calls): ${duration.toFixed(2)} ms\n`;
+        }
+
+        // Measure performance of distance calculation
+        function performanceCalculateDistance() {
+            const start = performance.now();
+            for (let i = 0; i < 100000; i++) {
+                calculateDistance(34.05, -118.25, 40.71, -74.01); // Example coordinates: Los Angeles to New York
+            }
+            const end = performance.now();
+            const duration = end - start;
+            document.getElementById('performance-results').innerText += `calculateDistance (100,000 iterations): ${duration.toFixed(2)} ms\n`;
+        }
+
+        // Measure performance of miles to meters conversion
+        function performanceMilesToMeters() {
+            const start = performance.now();
+            for (let i = 0; i < 100000; i++) {
+                milesToMeters(5); // Convert 5 miles to meters
+            }
+            const end = performance.now();
+            const duration = end - start;
+            document.getElementById('performance-results').innerText += `milesToMeters (100,000 iterations): ${duration.toFixed(2)} ms\n`;
+        }
+
+        // New performance test for midpoint calculation
+        function performanceMidpointCalculation() {
+            const start = performance.now();
+            const coords1 = [34.05, -118.25]; // Los Angeles
+            const coords2 = [40.71, -74.01];  // New York
+
+            for (let i = 0; i < 100000; i++) {
+                const midpoint = [
+                    (coords1[0] + coords2[0]) / 2,
+                    (coords1[1] + coords2[1]) / 2
+                ];
+            }
+            const end = performance.now();
+            const duration = end - start;
+            document.getElementById('performance-results').innerText += `Midpoint Calculation (100,000 iterations): ${duration.toFixed(2)} ms\n`;
+        }
+
+        // Security Tests
+
+        // Security Test 1: XSS Attempt with Script Tags
+        async function securityTestXSS() {
+            try {
+                const xssInput = "alert('XSS');";
+                const coords = await getCoordinates(xssInput);
+                document.getElementById('security-results').innerText += `XSS Test - Coordinates for "<script>": ${JSON.stringify(coords)}\n`;
+            } catch (error) {
+                document.getElementById('security-results').innerText += `XSS Test - Error for "<script>": ${error.message}\n`;
+            }
+        }
+
+        // Security Test 2: SQL Injection-like Input
+        async function securityTestSQLInjection() {
+            try {
+                const sqlInjectionInput = "Robert'); DROP TABLE Students;--";
+                const coords = await getCoordinates(sqlInjectionInput);
+                document.getElementById('security-results').innerText += `SQL Injection Test - Coordinates for SQL-like input: ${JSON.stringify(coords)}\n`;
+            } catch (error) {
+                document.getElementById('security-results').innerText += `SQL Injection Test - Error for SQL-like input: ${error.message}\n`;
+            }
+        }
+
+        // Security Test 3: Special Characters and HTML Encoding
+        async function securityTestSpecialCharacters() {
+            try {
+                const specialCharInput = "& < > \" ' / \\ #";
+                const coords = await getCoordinates(specialCharInput);
+                document.getElementById('security-results').innerText += `Special Characters Test - Coordinates for special characters: ${JSON.stringify(coords)}\n`;
+            } catch (error) {
+                document.getElementById('security-results').innerText += `Special Characters Test - Error for special characters: ${error.message}\n`;
+            }
+        }
+
+        // Security Test 4: Very Long Strings
+        async function securityTestLongString() {
+            try {
+                const longStringInput = "a".repeat(10000); // A string with 10,000 'a' characters
+                const coords = await getCoordinates(longStringInput);
+                document.getElementById('security-results').innerText += `Long String Test - Coordinates for long string: ${JSON.stringify(coords)}\n`;
+            } catch (error) {
+                document.getElementById('security-results').innerText += `Long String Test - Error for long string: ${error.message}\n`;
+            }
+        }
+
+        // Security Test 5: Null or Empty Inputs
+        async function securityTestEmptyOrNull() {
+            try {
+                const nullInput = null;
+                const emptyInput = "";
+                const coordsNull = await getCoordinates(nullInput);
+                document.getElementById('security-results').innerText += `Empty or Null Test - Coordinates for null input: ${JSON.stringify(coordsNull)}\n`;
+
+                const coordsEmpty = await getCoordinates(emptyInput);
+                document.getElementById('security-results').innerText += `Empty or Null Test - Coordinates for empty input: ${JSON.stringify(coordsEmpty)}\n`;
+            } catch (error) {
+                document.getElementById('security-results').innerText += `Empty or Null Test - Error for empty or null input: ${error.message}\n`;
+            }
+        }
+
+        // Run all tests
+        async function runTests() {
+            document.getElementById('test-results').innerText = "Running unit tests...\n";
+            await testGetCoordinates();
+            await testGetAmenities();
+            document.getElementById('test-results').innerText += "Ran all unit tests.\n";
+        }
+
+        // Run all performance tests
+        async function runPerformanceTests() {
+            document.getElementById('performance-results').innerText = "Running performance tests...\n";
+            await performanceGetCoordinates();
+            await performanceGetAmenities();
+            performanceCalculateDistance();
+            performanceMilesToMeters();
+            performanceMidpointCalculation();
+            document.getElementById('performance-results').innerText += "Ran all performance tests.\n";
+        }
+
+        // Run all security tests
+        async function runSecurityTests() {
+            document.getElementById('security-results').innerText = "Running security tests...\n";
+            await securityTestXSS();
+            await securityTestSQLInjection();
+            await securityTestSpecialCharacters();
+            await securityTestLongString();
+            await securityTestEmptyOrNull();
+            document.getElementById('security-results').innerText += "Ran all security tests.\n";
+        }
+
+        // Run all tests on page load
+        window.onload = async () => {
+            await runTests();
+            await runPerformanceTests();
+            await runSecurityTests();
+        };
+    </script>
+</body>
+</html>
