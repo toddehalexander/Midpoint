@@ -65,6 +65,26 @@
             }
         }
 
+        // Unit test for calculateDistance between New York and Los Angeles
+        function testCalculateDistance() {
+            try {
+                const distance = calculateDistance(34.05, -118.25, 40.71, -74.01); // Los Angeles to New York
+                assertEqual(distance.toFixed(0), "2445", "calculateDistance should return ~2445 miles between LA and NY");
+            } catch (error) {
+                console.error(`❌ testCalculateDistance failed: ${error.message}`);
+            }
+        }
+
+        // Unit test for milesToMeters
+        function testMilesToMeters() {
+            try {
+                const meters = milesToMeters(5);
+                assertEqual(meters, 8046.72, "milesToMeters should convert 5 miles to 8046.72 meters");
+            } catch (error) {
+                console.error(`❌ testMilesToMeters failed: ${error.message}`);
+            }
+        }
+
         // Performance test functions
 
         // Measure performance of getCoordinates with real API calls
@@ -194,6 +214,8 @@
             document.getElementById('test-results').innerText = "Running unit tests...\n";
             await testGetCoordinates();
             await testGetAmenities();
+            testCalculateDistance(); // Added test for distance calculation
+            testMilesToMeters(); // Added test for milesToMeters
             document.getElementById('test-results').innerText += "Ran all unit tests.\n";
         }
 
