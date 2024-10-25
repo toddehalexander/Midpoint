@@ -18,14 +18,48 @@ This project is a web application that allows users to find the midpoint between
 - Internet connection
 
 ### Installation
-1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/toddehalexander/Midpoint
-    cd Midpoint
-    ```
+Here’s the updated **Installation** section that includes both the web version info and Python 3 setup, with Python 2 instructions removed:
 
-2. **Open the project**:
-   You can directly open the `index.html` file in your web browser.
+---
+
+## Installation
+
+### Prerequisites
+- **Python 3.x**: Ensure you have Python 3 installed on your machine. You can download it from the [official Python website](https://www.python.org/downloads/).
+- **Modern Web Browser**: Ensure you have an updated version of any modern web browser (e.g., Google Chrome, Firefox, Safari).
+
+### Option 1: View the Live Website
+
+You can view the project live, hosted on GitHub Pages, without any local setup. Visit the link below:
+
+**[Live Midpoint Website](https://toddehalexander.github.io/Midpoint/)**
+
+### Option 2: Running Locally
+
+1. **Clone the Repository**:
+   Open your terminal or command prompt, and run the following command to clone the repository:
+   ```bash
+   git clone https://github.com/toddehalexander/midpoint.git
+   ```
+
+2. **Navigate to the Project Directory**:
+   After cloning, navigate into the project directory:
+   ```bash
+   cd midpoint
+   ```
+
+3. **Run the Application with Python’s Built-in HTTP Server**:
+   If you want to run the project locally, use Python’s built-in HTTP server. Run the following command in the terminal:
+   ```bash
+   python -m http.server 8000
+   ```
+
+4. **Open the Application in Your Browser**:
+   Once the server is running, open your browser and navigate to:
+   ```bash
+   http://localhost:8000
+   ```
+---
 
 ### API Key (optional)
 The project uses the **OpenStreetMap** APIs and does not require an API key. However, if you intend to use a premium geocoding service, you might need to replace the Nominatim API calls with the relevant service and include an API key.
