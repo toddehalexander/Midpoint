@@ -1,3 +1,40 @@
+/* Navigation bar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #97c4b8;
+    color: white;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar h1 {
+    font-family: 'Popins', sans-serif;
+    margin: 0;
+    font-size: 20px;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-right label {
+    font-weight: bold;
+    color: white;
+}
+
+.nav-right select {
+    padding: 5px;
+    border-radius: 4px;
+    border: none;
+}
+
 /* Main container style */
 .container {
     max-width: 1200px;
@@ -76,11 +113,6 @@ body.pastel {
     background-color: #e8f5e9;
 }
 
-body.dark {
-    background-color: #2e2e2e;
-    color: #f0f0f0;
-}
-
 body.light {
     background-color: #fefefe;
 }
@@ -136,4 +168,72 @@ input {
     border-radius: 8px;
     max-height: 400px;
     overflow-y: auto;
+}
+/* General Theme Styles */
+body.pastel {
+    background-color: #e8f5e9;
+    color: #333;
+}
+
+
+body.light {
+    background-color: #fefefe;
+    color: #333;
+}
+
+body.blue {
+    background-color: #e3f2fd;
+    color: #333;
+}
+
+/* Navbar Themes */
+.navbar-pastel {
+    background-color: #a8d5ba;
+    color: white;
+}
+
+
+.navbar-light {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.navbar-blue {
+    background-color: #87cefa;
+    color: white;
+}
+
+/* Button Themes */
+.button-pastel {
+    background-color: #a8d5ba;
+    color: white;
+}
+
+.button-light {
+    background-color: #ddd;
+    color: black;
+}
+
+.button-blue {
+    background-color: #87cefa;
+    color: white;
+}
+
+/* Amenities List Themes */
+.amenities-list-pastel {
+    background-color: #f7fff7; /* Light green background for pastel */
+    color: #333;
+    border: 1px solid #a8d5ba;
+}
+
+.amenities-list-light {
+    background-color: #fefefe; /* White background for light theme */
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.amenities-list-blue {
+    background-color: #dbeeff; /* Light blue background for blue theme */
+    color: #333;
+    border: 1px solid #87cefa;
 }

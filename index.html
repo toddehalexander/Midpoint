@@ -8,9 +8,21 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Midpoint Finder with Local Amenities</h1>
+    <nav class="navbar">
+        <div class="nav-left">
+            <h1>Midpoint Finder</h1>
+        </div>
+        <div class="nav-right">
+            <h1 for="theme">Theme:</h1>
+            <select id="theme">
+                <option value="pastel">Pastel</option>
+                <option value="light">Light</option>
+                <option value="blue">Blue</option>
+            </select>
+        </div>
+    </nav>
 
+    <div class="container">
         <form id="locationForm">
             <div class="input-group">
                 <label for="location1">Location 1:</label>
@@ -25,16 +37,6 @@
             <div class="input-group">
                 <label for="radius">Radius (miles): <span id="radius-value">1</span> miles</label>
                 <input type="range" id="radius" min="0.5" max="5" value="1" step="0.1">
-            </div>
-            
-            <div class="input-group">
-                <label for="theme">Select Theme:</label>
-                <select id="theme">
-                    <option value="pastel">Pastel</option>
-                    <option value="dark">Dark</option>
-                    <option value="light">Light</option>
-                    <option value="blue">Blue</option>
-                </select>
             </div>
             <button type="submit">Find Midpoint and Show Amenities</button>
         </form>

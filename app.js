@@ -12,11 +12,6 @@ document.getElementById('radius').addEventListener('input', function() {
     document.getElementById('radius-value').textContent = this.value;
 });
 
-// Handle theme selection
-document.getElementById('theme').addEventListener('change', function() {
-    document.body.className = this.value;
-});
-
 // Update radius value display in miles
 document.getElementById('radius').addEventListener('input', function() {
     const radiusMiles = this.value;
@@ -40,29 +35,72 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return R * c; // Distance in miles
 }
 
-// Auto-complete feature for location input
 async function autocompleteLocation(inputId, listId) {
     const input = document.getElementById(inputId);
-    input.addEventListener('input', async function() {
-        const list = document.getElementById(listId);
-        list.innerHTML = '';
+    const list = document.getElementById(listId);
+    let isLocationPicked = false; // Track if the user has picked a location
+
+    input.addEventListener('input', async function () {
+        if (isLocationPicked) return; // Stop API calls if a location has been picked
+
+        list.innerHTML = ''; // Clear previous results
 
         if (this.value.length < 3) return; // Only trigger search for 3 or more characters
 
-        const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${this.value}`);
-        const data = response.data;
-
-        data.forEach(item => {
-            const option = document.createElement('div');
-            option.textContent = item.display_name;
-            option.addEventListener('click', () => {
-                input.value = item.display_name;
-                list.innerHTML = ''; // Clear the dropdown after selection
+        try {
+            const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+                params: {
+                    format: 'json',
+                    q: this.value,
+                    countrycodes: 'us', // Restrict results to USA
+                },
             });
-            list.appendChild(option);
-        });
+            const data = response.data;
+
+            data.forEach(item => {
+                const option = document.createElement('div');
+                option.textContent = item.display_name;
+                option.addEventListener('click', () => {
+                    input.value = item.display_name; // Set the input value
+                    list.innerHTML = ''; // Clear the dropdown after selection
+                    isLocationPicked = true; // Mark location as picked
+                });
+                list.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching location data:', error);
+        }
+    });
+
+    input.addEventListener('focus', function () {
+        if (input.value.length === 0) {
+            isLocationPicked = false; // Reset the flag if the input is cleared
+        }
+    });
+
+    input.addEventListener('input', function () {
+        if (this.value.length === 0) {
+            isLocationPicked = false; // Reset the flag when the user clears the input
+        }
+    });
+
+    input.addEventListener('blur', function () {
+        setTimeout(() => {
+            list.innerHTML = ''; // Clear dropdown when the input loses focus
+        }, 200);
+    });
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            list.innerHTML = ''; // Clear the dropdown on pressing Enter
+            isLocationPicked = true; // Mark location as picked
+        }
     });
 }
+
+
+
+
 
 // Activate autocomplete on both inputs
 autocompleteLocation('location1', 'autocomplete-list1');
