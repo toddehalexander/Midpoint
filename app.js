@@ -38,14 +38,14 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 async function autocompleteLocation(inputId, listId) {
     const input = document.getElementById(inputId);
     const list = document.getElementById(listId);
-    let isLocationPicked = false; // Track if the user has picked a location
+    let isLocationPicked = false; // Flag to stop API calls if a location is selected
 
     input.addEventListener('input', async function () {
-        if (isLocationPicked) return; // Stop API calls if a location has been picked
+        if (isLocationPicked) return; // Prevent API requests if a location is picked
 
         list.innerHTML = ''; // Clear previous results
 
-        if (this.value.length < 3) return; // Only trigger search for 3 or more characters
+        if (this.value.length < 3) return; // Only trigger API for 3 or more characters
 
         try {
             const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
@@ -57,13 +57,15 @@ async function autocompleteLocation(inputId, listId) {
             });
             const data = response.data;
 
+            // Populate dropdown with suggestions
             data.forEach(item => {
                 const option = document.createElement('div');
                 option.textContent = item.display_name;
                 option.addEventListener('click', () => {
-                    input.value = item.display_name; // Set the input value
-                    list.innerHTML = ''; // Clear the dropdown after selection
-                    isLocationPicked = true; // Mark location as picked
+                    input.value = item.display_name; // Set input value
+                    list.innerHTML = ''; // Clear dropdown
+                    isLocationPicked = true; // Disable further requests
+                    input.blur(); // Deselect input
                 });
                 list.appendChild(option);
             });
@@ -72,31 +74,36 @@ async function autocompleteLocation(inputId, listId) {
         }
     });
 
+    // Reset flag when input field is modified
     input.addEventListener('focus', function () {
-        if (input.value.length === 0) {
-            isLocationPicked = false; // Reset the flag if the input is cleared
+        if (input.value.trim() === '') {
+            isLocationPicked = false; // Enable API calls if input is cleared
         }
     });
 
     input.addEventListener('input', function () {
-        if (this.value.length === 0) {
-            isLocationPicked = false; // Reset the flag when the user clears the input
+        if (this.value.trim() === '') {
+            isLocationPicked = false; // Reset flag if the input is cleared
         }
     });
 
+    // Clear dropdown when focus is lost
     input.addEventListener('blur', function () {
         setTimeout(() => {
-            list.innerHTML = ''; // Clear dropdown when the input loses focus
+            list.innerHTML = ''; // Delay to handle click events
         }, 200);
     });
 
+    // Prevent Enter key from reopening dropdown
     input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
-            list.innerHTML = ''; // Clear the dropdown on pressing Enter
-            isLocationPicked = true; // Mark location as picked
+            list.innerHTML = ''; // Clear dropdown
+            isLocationPicked = true; // Disable API requests
+            input.blur(); // Deselect input
         }
     });
 }
+
 
 
 
