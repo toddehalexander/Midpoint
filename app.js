@@ -140,8 +140,7 @@ async function getAmenities(lat, lon, radius) {
     return response.data.elements;
 }
 
-// Form submission handler
-document.getElementById('locationForm').addEventListener('submit', async function(e) {
+document.getElementById('locationForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const loc1 = document.getElementById('location1').value;
@@ -150,88 +149,57 @@ document.getElementById('locationForm').addEventListener('submit', async functio
     const radiusMeters = milesToMeters(radiusMiles);
 
     try {
-        // Get the coordinates for both locations
+        // Get coordinates for both locations
         const coords1 = await getCoordinates(loc1);
         const coords2 = await getCoordinates(loc2);
 
-        // Calculate the midpoint
-        const midpoint = [
+        // Calculate midpoint
+        midpoint = [
             (coords1[0] + coords2[0]) / 2,
-            (coords1[1] + coords2[1]) / 2
+            (coords1[1] + coords2[1]) / 2,
         ];
 
-        // Clear existing markers and circle
+        // Add markers and circle
         map.eachLayer((layer) => {
             if (layer instanceof L.Marker || layer instanceof L.Circle) {
                 map.removeLayer(layer);
             }
         });
 
-        // Add markers for both locations and the midpoint
-        L.marker(coords1).addTo(map).bindPopup(`Location 1: ${loc1}`).openPopup();
-        L.marker(coords2).addTo(map).bindPopup(`Location 2: ${loc2}`).openPopup();
-        L.marker(midpoint).addTo(map).bindPopup('Midpoint').openPopup();
-
-        // Draw a circle around the midpoint
-        circle = L.circle(midpoint, {
+        L.marker(coords1).addTo(map).bindPopup(`Location 1: ${loc1}`);
+        L.marker(coords2).addTo(map).bindPopup(`Location 2: ${loc2}`);
+        L.marker(midpoint).addTo(map).bindPopup('Midpoint');
+        L.circle(midpoint, {
             color: '#7eb1a2',
             fillColor: '#97c4b8',
             fillOpacity: 0.5,
-            radius: radiusMeters
+            radius: radiusMeters,
         }).addTo(map);
 
-        // Pan the map to the midpoint
         map.setView(midpoint, 13);
 
-        // Fetch nearby amenities
+        // Fetch and display amenities
         const amenities = await getAmenities(midpoint[0], midpoint[1], radiusMeters);
+        lastFetchedAmenities = amenities;
 
-        // Clear the previous list of amenities
-        const amenitiesList = document.getElementById('amenities-list');
-        amenitiesList.innerHTML = '';
+        // Extract unique categories and generate buttons
+        const categories = [...new Set(amenities.map((amenity) => amenity.tags.amenity))];
+        generateCategoryButtons(categories);
 
-        const categorizedAmenities = {};
+        // Display amenities
+        displayAmenities(amenities);
 
-        // Add markers for amenities and list them
-        amenities.forEach((amenity) => {
-            const coords = [amenity.lat, amenity.lon];
-            const name = amenity.tags.name || 'Unknown';
-            const type = amenity.tags.amenity;
-
-            // Calculate distance from the midpoint in miles
-            const distance = calculateDistance(midpoint[0], midpoint[1], coords[0], coords[1]).toFixed(2);
-
-            // Add marker to the map
-            L.marker(coords).addTo(map).bindPopup(`${name} (${type}, ${distance} miles)`).openPopup();
-
-            // Categorize the amenities
-            if (!categorizedAmenities[type]) {
-                categorizedAmenities[type] = [];
-            }
-            categorizedAmenities[type].push(`${name} (${distance} miles)`);
-        });
-
-        // Display the categorized list of amenities
-        Object.keys(categorizedAmenities).forEach((category) => {
-            const categoryElement = document.createElement('div');
-            categoryElement.className = 'amenity-item';
-            const title = document.createElement('h4');
-            title.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-            categoryElement.appendChild(title);
-
-            categorizedAmenities[category].forEach((name) => {
-                const item = document.createElement('p');
-                item.textContent = name;
-                categoryElement.appendChild(item);
-            });
-
-            amenitiesList.appendChild(categoryElement);
-        });
+        // Show the "Select All" and "Disable All" buttons
+        document.getElementById('category-controls').style.display = 'block';
 
     } catch (error) {
-        alert('Error finding locations or amenities: ' + error.message);
+        alert('Error fetching amenities: ' + error.message);
+
+        // Hide the "Select All" and "Disable All" buttons if there's an error
+        document.getElementById('category-controls').style.display = 'none';
     }
 });
+
 // Hide the autocomplete list when clicking outside
 document.addEventListener('click', function(e) {
     const input1 = document.getElementById('location1');
@@ -247,3 +215,182 @@ document.addEventListener('click', function(e) {
         list2.innerHTML = ''; // Clear the dropdown for location 2
     }
 });
+
+let lastFetchedAmenities = []; // Store fetched amenities globally
+let activeCategories = new Set(); // Track active categories
+let midpoint = null; // Define midpoint globally
+
+// Dynamically generate category buttons
+function generateCategoryButtons(categories) {
+    const categoryContainer = document.getElementById('category-checkboxes');
+    categoryContainer.innerHTML = ''; // Clear any existing buttons
+
+    if (categories.length === 0) {
+        const noCategoryMessage = document.createElement('p');
+        noCategoryMessage.textContent = "No categories available.";
+        categoryContainer.appendChild(noCategoryMessage);
+        return;
+    }
+
+    categories.forEach((category) => {
+        const button = document.createElement('button');
+        button.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+        button.className = 'category-button active'; // Active by default
+        button.dataset.category = category;
+
+        // Add click event to toggle category
+        button.addEventListener('click', function () {
+            if (activeCategories.has(category)) {
+                activeCategories.delete(category);
+                button.classList.remove('active');
+            } else {
+                activeCategories.add(category);
+                button.classList.add('active');
+            }
+            filterAmenities(); // Refresh amenities display
+        });
+
+        categoryContainer.appendChild(button);
+        activeCategories.add(category); // Add to activeCategories initially
+    });
+}
+
+// Filter amenities based on active categories
+function filterAmenities() {
+    const filteredAmenities = lastFetchedAmenities.filter((amenity) =>
+        activeCategories.has(amenity.tags.amenity)
+    );
+    displayAmenities(filteredAmenities);
+}
+
+// Display amenities on the map and in the list
+function displayAmenities(amenities) {
+    const amenitiesList = document.getElementById('amenities-list');
+    amenitiesList.innerHTML = ''; // Clear previous list
+
+    map.eachLayer((layer) => {
+        if (layer instanceof L.Marker && !layer.options.permanent) {
+            map.removeLayer(layer);
+        }
+    });
+
+    const categorizedAmenities = {};
+
+    amenities.forEach((amenity) => {
+        const coords = [amenity.lat, amenity.lon];
+        const name = amenity.tags.name || 'Unknown';
+        const type = amenity.tags.amenity;
+
+        const distance = calculateDistance(midpoint[0], midpoint[1], coords[0], coords[1]).toFixed(2);
+
+        // Add marker
+        const marker = L.marker(coords).addTo(map);
+        marker.bindPopup(`${name} (${type}, ${distance} miles)`);
+
+        // Categorize amenities
+        if (!categorizedAmenities[type]) {
+            categorizedAmenities[type] = [];
+        }
+        categorizedAmenities[type].push(`${name} (${distance} miles)`);
+    });
+
+    // Display categorized amenities with labels
+    Object.keys(categorizedAmenities).forEach((category) => {
+        const categoryElement = document.createElement('div');
+        categoryElement.className = 'amenity-item';
+        const title = document.createElement('h4');
+        title.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+        categoryElement.appendChild(title);
+
+        categorizedAmenities[category].forEach((name) => {
+            const item = document.createElement('p');
+            item.textContent = name;
+            categoryElement.appendChild(item);
+        });
+
+        amenitiesList.appendChild(categoryElement);
+    });
+}
+
+// Form submission handler
+document.getElementById('locationForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const loc1 = document.getElementById('location1').value;
+    const loc2 = document.getElementById('location2').value;
+    const radiusMiles = document.getElementById('radius').value;
+    const radiusMeters = milesToMeters(radiusMiles);
+
+    try {
+        // Get coordinates for both locations
+        const coords1 = await getCoordinates(loc1);
+        const coords2 = await getCoordinates(loc2);
+
+        // Calculate midpoint
+        midpoint = [
+            (coords1[0] + coords2[0]) / 2,
+            (coords1[1] + coords2[1]) / 2,
+        ];
+
+        // Add markers and circle
+        map.eachLayer((layer) => {
+            if (layer instanceof L.Marker || layer instanceof L.Circle) {
+                map.removeLayer(layer);
+            }
+        });
+
+        L.marker(coords1).addTo(map).bindPopup(`Location 1: ${loc1}`);
+        L.marker(coords2).addTo(map).bindPopup(`Location 2: ${loc2}`);
+        L.marker(midpoint).addTo(map).bindPopup('Midpoint');
+        L.circle(midpoint, {
+            color: '#7eb1a2',
+            fillColor: '#97c4b8',
+            fillOpacity: 0.5,
+            radius: radiusMeters,
+        }).addTo(map);
+
+        map.setView(midpoint, 13);
+
+        // Fetch and display amenities
+        const amenities = await getAmenities(midpoint[0], midpoint[1], radiusMeters);
+        lastFetchedAmenities = amenities;
+
+        // Extract unique categories and generate buttons
+        const categories = [...new Set(amenities.map((amenity) => amenity.tags.amenity))];
+        generateCategoryButtons(categories);
+
+        // Display amenities
+        displayAmenities(amenities);
+    } catch (error) {
+        alert('Error fetching amenities: ' + error.message);
+    }
+});
+// Function to select all categories
+function selectAllCategories() {
+    const buttons = document.querySelectorAll('.category-button');
+    buttons.forEach((button) => {
+        const category = button.dataset.category;
+        if (!activeCategories.has(category)) {
+            activeCategories.add(category);
+            button.classList.add('active');
+        }
+    });
+    filterAmenities(); // Refresh amenities display
+}
+
+// Function to disable all categories
+function disableAllCategories() {
+    const buttons = document.querySelectorAll('.category-button');
+    buttons.forEach((button) => {
+        const category = button.dataset.category;
+        if (activeCategories.has(category)) {
+            activeCategories.delete(category);
+            button.classList.remove('active');
+        }
+    });
+    filterAmenities(); // Refresh amenities display
+}
+
+// Add event listeners for "Select All" and "Disable All" buttons
+document.getElementById('select-all-categories').addEventListener('click', selectAllCategories);
+document.getElementById('disable-all-categories').addEventListener('click', disableAllCategories);

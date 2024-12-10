@@ -43,10 +43,21 @@
 
         <div id="map"></div>
 
+        <div class="filter-options" id="category-controls" style="display: none;">
+            <h3>Filter by Category</h3>
+            <button id="select-all-categories">Select All</button>
+            <button id="disable-all-categories">Disable All</button>
+            <div id="category-checkboxes">
+                <!-- Dynamically generated category buttons will appear here -->
+            </div>
+        </div>
+        
+        
         <h2>Nearby Amenities</h2>
-        <div id="amenities-list"></div>
-    </div>
-
+        <div id="amenities-list">
+            <!-- Nearby amenities will be listed here with labels -->
+        </div>
+    
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="app.js"></script>

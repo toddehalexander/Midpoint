@@ -237,3 +237,59 @@ body.blue {
     color: #333;
     border: 1px solid #87cefa;
 }
+.category-button {
+    background-color: #97c4b8;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 15px;
+    margin: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.category-button:hover {
+    background-color: #7eb1a2;
+    transform: scale(1.05);
+}
+
+.category-button.active {
+    background-color: #7eb1a2;
+}
+
+.category-button:not(.active) {
+    background-color: #ddd;
+    color: #333;
+}
+
+.amenity-item {
+    margin-bottom: 15px;
+}
+
+.amenity-item h4 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+    color: #4a4a4a;
+}
+
+.amenity-item p {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+#select-all-categories, #disable-all-categories {
+    background-color: #97c4b8;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+#select-all-categories:hover, #disable-all-categories:hover {
+    background-color: #7eb1a2;
+}
+
