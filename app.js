@@ -7,6 +7,43 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+async function checkRateLimit() {
+    const statusElement = document.getElementById('rate-limit-status');
+    try {
+        // Send a lightweight request to Nominatim
+        const response = await fetch('https://nominatim.openstreetmap.org/search?q=test&format=json');
+
+        if (response.ok) {
+            const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
+            const rateLimitReset = response.headers.get('x-ratelimit-reset');
+
+            if (rateLimitRemaining && parseInt(rateLimitRemaining, 10) > 0) {
+                statusElement.textContent = `API OK (${rateLimitRemaining} requests remaining)`;
+                statusElement.className = "status ok";
+            } else if (rateLimitRemaining === "0") {
+                const resetTime = new Date(parseInt(rateLimitReset, 10) * 1000);
+                statusElement.textContent = `Rate Limited (resets at ${resetTime.toLocaleTimeString()})`;
+                statusElement.className = "status limited";
+            } else {
+                statusElement.textContent = "API OK (Unknown Rate Limit)";
+                statusElement.className = "status ok";
+            }
+        } else {
+            statusElement.textContent = `Error: ${response.statusText}`;
+            statusElement.className = "status limited";
+        }
+    } catch (error) {
+        statusElement.textContent = "Error Checking Status";
+        statusElement.className = "status limited";
+        console.error("Rate limit check failed:", error);
+    }
+}
+
+// Perform the rate limit check once when the page loads
+window.addEventListener('DOMContentLoaded', () => {
+    checkRateLimit();
+});
+
 // Update radius value display in miles
 document.getElementById('radius').addEventListener('input', function() {
     document.getElementById('radius-value').textContent = this.value;

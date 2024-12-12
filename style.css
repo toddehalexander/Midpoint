@@ -293,3 +293,21 @@ body.blue {
     background-color: #7eb1a2;
 }
 
+#rate-limit-status {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #ff9800;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+#rate-limit-status.ok {
+    background-color: #4caf50; /* Green for OK */
+}
+
+#rate-limit-status.limited {
+    background-color: #f44336; /* Red for rate-limited */
+}
